@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interior Design Cost Calculator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Interior Design Cost Calculator</h1>
+            <p>Get an instant estimate for your dream interior</p>
+        </div>
+
+        <div class="form-section">
+            <!-- Step 1: Property Type -->
+            <div class="section" id="step1">
+                <h2 class="section-title">Step 1: Select Property Type</h2>
+                <div class="form-group">
+                    <label for="propertyType">Property Type</label>
+                    <select id="propertyType">
+                        <option value="">-- Select Property Type --</option>
+                        <option value="individual">Individual House</option>
+                        <option value="1bhk">1 BHK Apartment</option>
+                        <option value="2bhk">2 BHK Apartment</option>
+                        <option value="3bhk">3 BHK Apartment</option>
+                        <option value="4bhk">4 BHK Apartment</option>
+                        <option value="custom">Custom Configuration</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Step 2: Room Configuration -->
+            <div class="section hidden" id="step2">
+                <h2 class="section-title">Step 2: Room Configuration</h2>
+                <div class="form-group">
+                    <label for="numBedrooms">Number of Bedrooms</label>
+                    <select id="numBedrooms">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="numKitchens">Number of Kitchens</label>
+                    <select id="numKitchens">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Step 3: Bedroom Furniture -->
+            <div class="section hidden" id="step3">
+                <h2 class="section-title" id="step3Title">Step 3: Bedroom Furniture Selection</h2>
+                <div id="bedroomContainer"></div>
+            </div>
+
+            <!-- Step 4: Living Room Selection -->
+            <div class="section hidden" id="step4">
+                <h2 class="section-title" id="step4Title">Step 4: Living Room Selection</h2>
+                <div id="livingRoomContainer"></div>
+            </div>
+
+            <!-- Step 5: Kitchen Details -->
+            <div class="section hidden" id="step5">
+                <h2 class="section-title" id="step5Title">Step 5: Kitchen Details</h2>
+                <div id="kitchenContainer"></div>
+            </div>
+        </div>
+
+        <div class="total-section">
+            <p class="total-label">Estimated Total Cost</p>
+            <div class="total-amount">
+                <span class="currency">₹</span><span id="totalCost">0</span>
+            </div>
+            <div class="btn-group">
+                <button class="btn" onclick="calculator.generateQuote()">Generate Quote</button>
+                <button class="btn" onclick="generateDetailedPDF()">Download PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- External JavaScript Libraries -->
+    <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js" onerror="loadJsPDFFallback()"></script>
+    
+    <script>
+    // Fallback CDN loader
+    function loadJsPDFFallback() {
+        console.log('Primary jsPDF CDN failed, loading fallback...');
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+        script.onerror = function() {
+            console.error('Both jsPDF CDNs failed to load');
+            alert('Unable to load PDF library. Please check your internet connection and refresh the page.');
+        };
+        document.head.appendChild(script);
+    }
+    </script>
+    
+    <!-- Custom JavaScript Files -->
+    <script src="pricing.js"></script>
+    <script src="pdf-generator.js"></script>
+    <!-- Floating total (desktop) -->
+    <div id="floatingTotal" class="floating-total" aria-hidden="true">
+        <div class="floating-label">Estimated Total</div>
+        <div class="floating-amount"><span class="currency">₹</span><span id="floatingTotalAmount">0</span></div>
+    </div>
+</body>
+</html>
