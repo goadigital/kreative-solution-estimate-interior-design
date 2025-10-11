@@ -819,7 +819,7 @@ ${quote.items.map(item => `- ${item.room}: ${item.type} (${item.size}) - ₹${it
 
 Total: ₹${quote.total.toLocaleString()}
 
-This is an approximate estimate. Our team will contact you for detailed measurements and final quotation.
+This is an approximate estimate. Please connect with our team on +919975888247 for detailed measurements and final quotation.
         `;
         
         alert(summary);

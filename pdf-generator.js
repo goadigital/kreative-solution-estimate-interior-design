@@ -862,6 +862,11 @@ function generateDetailedPDF() {
         const pdfGenerator = new PDFGenerator();
         pdfGenerator.generateQuotePDF(quoteData);
         console.log('PDF generation completed successfully');
+        
+        // Check if user is on mobile device
+        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            alert("Estimate Downloaded to your Mobile device - Please check your default download location");
+        }
     } catch (error) {
         console.error('Main PDF generation failed:', error);
         alert('An error occurred while generating the PDF. Trying simplified version...');
