@@ -310,8 +310,8 @@ class InteriorCalculator {
 
         if (next && next.classList.contains('hidden')) {
             next.classList.remove('hidden');
-            // Only animate if it's not the first selection (room configuration)
-            if (next.id !== 'step2') {
+            // Only animate if it's not property type selection or room configuration
+            if (section.id !== 'step1' && next.id !== 'step2') {
                 next.classList.add('animate-in');
                 // remove animation class after finish to allow replay
                 setTimeout(() => next.classList.remove('animate-in'), 500);

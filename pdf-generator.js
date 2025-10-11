@@ -109,9 +109,9 @@ class PDFGenerator {
             this.addTotalSection(quoteData);
             this.addFooter();
             
-            // Add page number to the last page (since addFooter doesn't automatically do it)
+            // Add page numbers after all content is generated
             this.addPageNumber();
-
+            
             // Save the PDF
             const fileName = `Interior_Quote_${new Date().toISOString().split('T')[0]}.pdf`;
             this.doc.save(fileName);
@@ -127,39 +127,58 @@ class PDFGenerator {
         // Start with proper top margin
         this.currentY = this.topMargin;
 
-        // Title at the top with proper spacing
+        try {
+            // Load and add the logo
+            const img = await this.loadImage('kreative solution rec.png');
+            if (img) {
+                // Logo dimensions (set width and calculate height to maintain aspect ratio)
+                const logoWidth = 50; // width in mm
+                const logoHeight = logoWidth * (img.height / img.width);
+                
+                // Add logo to the left side with compression
+                this.doc.addImage(
+                    img,
+                    'PNG',
+                    this.leftMargin,
+                    this.currentY - 2,
+                    logoWidth,
+                    logoHeight,
+                    'logo', // alias for compression
+                    'MEDIUM' // compression level
+                );
+                
+                // Move currentY down by logo height plus spacing
+                this.currentY += logoHeight + 5;
+            }
+        } catch (error) {
+            console.error('Error loading logo:', error);
+            // If logo fails to load, add some spacing anyway
+            this.currentY += 15;
+        }
+
+        // Title to the right side
         this.doc.setFontSize(22);
         this.doc.setFont('helvetica', 'bold');
-        this.doc.setTextColor(PDF_CONFIG.BRAND_COLOR[0], PDF_CONFIG.BRAND_COLOR[1], PDF_CONFIG.BRAND_COLOR[2]);
-        this.doc.text(PDF_CONFIG.PDF_TITLE, this.pageWidth / 2, this.currentY, { align: 'center' });
+        this.doc.setTextColor(0, 0, 0); // Set to black color
+        // Position the title on the right side with proper margin
+        this.doc.text(PDF_CONFIG.PDF_TITLE, this.pageWidth - this.rightMargin, this.currentY - 15, { align: 'right' });
         
-        // Strapline under the main title (slightly smaller and centered)
+        // Add strapline in the center
         const strapline = 'We provide complete Interior Design and Execution In entire Goa.';
-        // Choose a smaller font for the strapline based on length
-        const strapFontSize = strapline.length > 60 ? 9 : 10;
-        this.currentY += PDF_CONFIG.SPACING.LINE + 2; // small gap after title
-    this.doc.setFontSize(strapFontSize);
-    // Make the strapline bold as requested
-    this.doc.setFont('helvetica', 'bold');
-    this.doc.setTextColor(80, 80, 80);
-    this.doc.text(strapline, this.pageWidth / 2, this.currentY, { align: 'center' });
-    // restore normal font for subsequent content
-    this.doc.setFont('helvetica', 'normal');
+        this.doc.setFontSize(10);
+        this.doc.setFont('helvetica', 'bold');
+        this.doc.setTextColor(80, 80, 80);
+        this.doc.text(strapline, this.pageWidth / 2, this.currentY, { align: 'center' });
         
-        // Add horizontal line below the title with consistent spacing
-        this.currentY += PDF_CONFIG.SPACING.LINE;
+        // Add horizontal line below the header elements
         this.doc.setDrawColor(200, 200, 200);
-        this.doc.line(this.leftMargin, this.currentY, this.pageWidth - this.rightMargin, this.currentY);
-        this.currentY += PDF_CONFIG.SPACING.SECTION;
+        this.doc.line(this.leftMargin, this.currentY + 5, this.pageWidth - this.rightMargin, this.currentY + 5);
         
-        // Company logo (if available)
-        try {
-            // You can add logo loading logic here
-            // const logoImg = await this.loadImage('assets/logo.png');
-            // this.doc.addImage(logoImg, 'PNG', this.leftMargin, this.currentY, 40, 20);
-        } catch (error) {
-            console.log('Logo not found, proceeding without logo');
-        }
+        // Reset font
+        this.doc.setFont('helvetica', 'normal');
+        
+        // Adjusted spacing after header
+        this.currentY += 12; // Increased spacing to move content down
     }
 
     addCompanyInfo() {
@@ -192,17 +211,17 @@ class PDFGenerator {
     // Save starting Y position for quote details positioning later
     const startY = this.currentY;
         
-        // Render all company info lines with consistent spacing
+        // Render all company info lines with adjusted spacing
         companyInfo.forEach(info => {
             this.doc.text(info, this.leftMargin, this.currentY);
-            this.currentY += PDF_CONFIG.SPACING.LINE; // Use standard line spacing
+            this.currentY += 5; // Slightly increased line spacing
         });
         
         // Store company info width and starting Y for use in addQuoteDetails
         this.companyInfoWidth = maxWidth + 10; // Add some buffer space
         this.companyInfoStartY = startY;
         
-        this.currentY += PDF_CONFIG.SPACING.PARAGRAPH; // Add paragraph spacing after company info
+        this.currentY += 3; // Slightly increased spacing after company info
     }
 
     addQuoteDetails(quoteData) {
@@ -228,7 +247,7 @@ class PDFGenerator {
         let detailY = quoteStartY;
         quoteDetails.forEach(detail => {
             this.doc.text(detail, quoteDetailsX, detailY, { align: 'right' });
-            detailY += PDF_CONFIG.SPACING.LINE; // Use standard line spacing
+            detailY += 5; // Adjusted line spacing to match company info
         });
         
         // Calculate final Y position with appropriate section spacing
@@ -272,28 +291,36 @@ class PDFGenerator {
         Object.keys(groupedItems).forEach(roomName => {
             const roomItems = groupedItems[roomName];
             
-            // Room header with proper formatting
-            this.doc.setFillColor(PDF_CONFIG.BRAND_COLOR[0], PDF_CONFIG.BRAND_COLOR[1], PDF_CONFIG.BRAND_COLOR[2]);
-            this.doc.setTextColor(255, 255, 255);
+            // Room header with consistent styling
+            this.doc.setFillColor(255, 255, 255); // White background
+            this.doc.setTextColor(80, 80, 80); // Dark grey text
             this.doc.setFont('helvetica', 'bold');
             this.doc.setFontSize(10);
             
-            // Draw room header background with proper margins
-            this.doc.rect(this.leftMargin, this.currentY, tableWidth, rowHeight, 'F');
+            // Draw room header with border
+            this.doc.setDrawColor(200, 200, 200); // Light grey border
+            this.doc.rect(this.leftMargin, this.currentY, tableWidth, rowHeight, 'FD'); // Fill and Draw
             
             // Center text vertically in the row
             const roomTitleY = this.currentY + (rowHeight * 0.6);
             this.doc.text(`${roomName}`, this.leftMargin + 4, roomTitleY);
             this.currentY += rowHeight;
             
-            // Column headers with improved alignment
-            this.doc.setFillColor(240, 240, 240);
-            this.doc.setTextColor(0, 0, 0);
+            // Column headers with minimal styling
+            this.doc.setFillColor(255, 255, 255); // White background
+            this.doc.setTextColor(80, 80, 80); // Dark grey text
             this.doc.setFont('helvetica', 'bold');
             this.doc.setFontSize(8);
             
-            // Draw column headers background
-            this.doc.rect(this.leftMargin, this.currentY, tableWidth, rowHeight, 'F');
+            // Draw column headers background and borders
+            this.doc.setDrawColor(200, 200, 200); // Light grey border
+            
+            // Draw main column headers border
+            this.doc.rect(this.leftMargin, this.currentY, tableWidth, rowHeight, 'FD');
+            
+            // Draw vertical lines between columns
+            this.doc.line(colX[1], this.currentY, colX[1], this.currentY + rowHeight); // Line after Item
+            this.doc.line(colX[2], this.currentY, colX[2], this.currentY + rowHeight); // Line after Specification
             
             // Center text vertically in the row
             const headerTextY = this.currentY + (rowHeight * 0.6);
@@ -326,13 +353,16 @@ class PDFGenerator {
                     this.addNewPage();
                 }
                 
-                // Alternate row colors
-                if (index % 2 === 0) {
-                    this.doc.setFillColor(250, 250, 250);
-                } else {
-                    this.doc.setFillColor(255, 255, 255);
-                }
-                this.doc.rect(this.leftMargin, this.currentY, tableWidth, dynamicRowHeight, 'F');
+                // Consistent white background with uniform borders
+                this.doc.setDrawColor(200, 200, 200); // Light grey border
+                this.doc.setFillColor(255, 255, 255); // White background
+                
+                // Draw main cell border
+                this.doc.rect(this.leftMargin, this.currentY, tableWidth, dynamicRowHeight, 'FD');
+                
+                // Draw vertical lines between columns
+                this.doc.line(colX[1], this.currentY, colX[1], this.currentY + dynamicRowHeight); // Line after Item
+                this.doc.line(colX[2], this.currentY, colX[2], this.currentY + dynamicRowHeight); // Line after Specification
                 
                 // Item details
                 const itemName = item.type.charAt(0).toUpperCase() + item.type.slice(1);
@@ -363,13 +393,18 @@ class PDFGenerator {
                 this.currentY += dynamicRowHeight;
             });
             
-            // Room subtotal with improved formatting
-            this.doc.setFillColor(230, 230, 230);
+            // Room subtotal with consistent styling
+            this.doc.setFillColor(255, 255, 255); // White background
             this.doc.setFont('helvetica', 'bold');
             this.doc.setFontSize(8);
             
-            // Draw subtotal row background
-            this.doc.rect(this.leftMargin, this.currentY, tableWidth, rowHeight, 'F');
+            // Draw subtotal row with consistent border
+            this.doc.setDrawColor(200, 200, 200); // Light grey border
+            this.doc.rect(this.leftMargin, this.currentY, tableWidth, rowHeight, 'FD');
+            
+            // Draw vertical lines between columns in subtotal row
+            this.doc.line(colX[1], this.currentY, colX[1], this.currentY + rowHeight); // Line after Item
+            this.doc.line(colX[2], this.currentY, colX[2], this.currentY + rowHeight); // Line after Specification
             
             // Center text vertically
             const subtotalTextY = this.currentY + (rowHeight * 0.6);
@@ -546,13 +581,46 @@ class PDFGenerator {
         // Total Amount with enhanced visibility
         this.doc.setFontSize(14);
         this.doc.setFont('helvetica', 'bold');
-        this.doc.setTextColor(PDF_CONFIG.BRAND_COLOR[0], PDF_CONFIG.BRAND_COLOR[1], PDF_CONFIG.BRAND_COLOR[2]);
+        this.doc.setTextColor(0, 0, 0); // Set to black color
         this.doc.text('Total Amount', labelX, this.currentY);
         this.doc.text(`Rs. ${Math.round(quoteData.total).toLocaleString()}`, rightAlign, this.currentY, { align: 'right' });
         
-        // Reset text color
-        this.doc.setTextColor(0, 0, 0);
+        // Add total amount in words
+        this.currentY += 8; // Add some space between number and words
+        this.doc.setFontSize(11); // Smaller font size for words
+        this.doc.setFont('helvetica', 'italic'); // Italic style for words
+        const amountInWords = this.numberToWords(quoteData.total);
+        this.doc.text(`(${amountInWords})`, this.pageWidth/2, this.currentY, { align: 'center' });
         this.currentY += PDF_CONFIG.SPACING.SECTION; // Consistent spacing after total
+    }
+    
+    // Helper function to convert number to words
+    numberToWords(num) {
+        const units = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten',
+                      'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+        const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+        
+        if (num === 0) return 'Zero';
+        
+        function convertLessThanThousand(n) {
+            if (n === 0) return '';
+            if (n < 20) return units[n];
+            if (n < 100) return tens[Math.floor(n / 10)] + (n % 10 ? ' ' + units[n % 10] : '');
+            return units[Math.floor(n / 100)] + ' Hundred' + (n % 100 ? ' and ' + convertLessThanThousand(n % 100) : '');
+        }
+        
+        const makeGroup = (n, g) => {
+            return n ? convertLessThanThousand(n) + ' ' + g : '';
+        };
+        
+        const num2 = Math.round(num);
+        let result = '';
+        result += makeGroup(Math.floor(num2 / 10000000), 'Crore ');
+        result += makeGroup(Math.floor((num2 % 10000000) / 100000), 'Lakh ');
+        result += makeGroup(Math.floor((num2 % 100000) / 1000), 'Thousand ');
+        result += convertLessThanThousand(num2 % 1000);
+        
+        return result.trim() + ' Rupees Only';
     }
     
     calculateRoomTotals(items) {
@@ -607,29 +675,32 @@ class PDFGenerator {
         this.doc.textWithLink('What App us', 
                             this.pageWidth - this.rightMargin, footerY + 6, 
                             { url: PDF_CONFIG.WhatApp_URL, align: 'right' });
-                            
-        // Add page number
-        this.addPageNumber();
     }
     
     addPageNumber() {
-        // Get current page and total pages
+        // Get current page
         const currentPage = this.doc.getCurrentPageInfo().pageNumber;
-        const totalPages = this.doc.getNumberOfPages();
+        // Calculate total pages
+        const totalPages = this.doc.internal.getNumberOfPages();
         
         // Add page number at the bottom center of each page with consistent bottom margin
         const pageNumberY = this.pageHeight - (this.bottomMargin / 2); // Position halfway into bottom margin
         this.doc.setFontSize(8);
         this.doc.setTextColor(100, 100, 100);
-        this.doc.text(`${currentPage} of ${totalPages}`, 
-                     this.pageWidth / 2, pageNumberY, 
-                     { align: 'center' });
+        
+        // Add page numbers to all pages with total count from document
+        for (let i = 1; i <= totalPages; i++) {
+            this.doc.setPage(i);
+            this.doc.text(`Page ${i} of ${totalPages}`, 
+                       this.pageWidth / 2, pageNumberY, 
+                       { align: 'center' });
+        }
+        
+        // Return to the current page
+        this.doc.setPage(currentPage);
     }
 
     addNewPage() {
-        // Add page number to the current page before adding a new one
-        this.addPageNumber();
-        
         // Add a new page
         this.doc.addPage();
         
@@ -639,7 +710,7 @@ class PDFGenerator {
         // Add header to new page for consistency
         this.doc.setFontSize(14);
         this.doc.setFont('helvetica', 'bold');
-        this.doc.setTextColor(PDF_CONFIG.BRAND_COLOR[0], PDF_CONFIG.BRAND_COLOR[1], PDF_CONFIG.BRAND_COLOR[2]);
+        this.doc.setTextColor(0, 0, 0); // Set to black color
         this.doc.text(PDF_CONFIG.PDF_TITLE, this.pageWidth / 2, this.currentY, { align: 'center' });
         
         // Add horizontal line with consistent margins
@@ -657,13 +728,56 @@ class PDFGenerator {
         this.doc.setTextColor(0, 0, 0);
     }
 
-    // Helper method to load images (if needed)
+    // Helper method to load and optimize images
     loadImage(src) {
         return new Promise((resolve, reject) => {
             const img = new Image();
-            img.onload = () => resolve(img);
-            img.onerror = reject;
+            img.onload = () => {
+                // Create a canvas to optimize the image
+                const canvas = document.createElement('canvas');
+                // Set optimal dimensions for PDF logo
+                const maxWidth = 300; // Limit maximum width for PDF
+                const scale = Math.min(1, maxWidth / img.width);
+                canvas.width = img.width * scale;
+                canvas.height = img.height * scale;
+                
+                // Draw and optimize
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                
+                // Convert to an optimized PNG
+                const optimizedImg = new Image();
+                optimizedImg.onload = () => resolve(optimizedImg);
+                optimizedImg.src = canvas.toDataURL('image/png', 0.8);
+            };
+            img.onerror = (error) => {
+                console.error('Error loading image:', error);
+                reject(error);
+            };
             img.src = src;
+        });
+    }
+
+    // Helper method to load SVG file and convert to data URL
+    loadSVGLogo(filename) {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => {
+                // Create a canvas to convert SVG to data URL
+                const canvas = document.createElement('canvas');
+                const scale = 2; // Increase resolution
+                canvas.width = img.width * scale;
+                canvas.height = img.height * scale;
+                const ctx = canvas.getContext('2d');
+                ctx.scale(scale, scale);
+                ctx.drawImage(img, 0, 0);
+                resolve(canvas.toDataURL('image/png'));
+            };
+            img.onerror = (error) => {
+                console.error('Error loading SVG:', error);
+                reject(error);
+            };
+            img.src = filename;
         });
     }
 }

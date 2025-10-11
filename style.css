@@ -566,10 +566,15 @@ input[type="checkbox"]:checked::after {
     color: #222;
 }
 
-/* Hide floating on small screens and rely on sticky bottom total */
+/* Adjust floating total for mobile screens */
 @media (max-width: 767px) {
     .floating-total {
-        display: none;
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        padding: 8px 16px;
+        transform: scale(0.9);
+        z-index: 1000;
     }
 }
 
