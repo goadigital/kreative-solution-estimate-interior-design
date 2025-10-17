@@ -9,8 +9,15 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Interior Design Cost Calculator</h1>
-            <p>Get an instant estimate for your dream interior</p>
+            <div class="header-content">
+                <div class="logo-container">
+                    <img src="kreative solution rec.png" alt="Kreative Solution Logo" class="company-logo">
+                </div>
+                <div class="header-text">
+                    <h1>Interior Design Cost Calculator</h1>
+                    <p>Get an instant estimate for your dream interior</p>
+                </div>
+            </div>
         </div>
 
         <div class="form-section">
@@ -26,8 +33,15 @@
                         <option value="2bhk">2 BHK Apartment</option>
                         <option value="3bhk">3 BHK Apartment</option>
                         <option value="4bhk">4 BHK Apartment</option>
-                        <option value="custom">Custom Configuration</option>
                     </select>
+                    <div id="propertyTypeVisualOptions" class="property-type-options-display">
+                        <div class="property-type-options-title">Available Options - Click to Select:</div>
+                        <div class="property-type-visual-option" data-value="individual">Individual House</div>
+                        <div class="property-type-visual-option" data-value="1bhk">1 BHK Apartment</div>
+                        <div class="property-type-visual-option" data-value="2bhk">2 BHK Apartment</div>
+                        <div class="property-type-visual-option" data-value="3bhk">3 BHK Apartment</div>
+                        <div class="property-type-visual-option" data-value="4bhk">4 BHK Apartment</div>
+                    </div>
                 </div>
             </div>
 
@@ -102,7 +116,7 @@
     </script>
     
     <!-- Custom JavaScript Files -->
-    <script src="pricing.js"></script>
+    <script src="app.js"></script>
     <script src="pdf-generator.js"></script>
     <!-- Floating total (desktop) -->
     <div id="floatingTotal" class="floating-total" aria-hidden="true">
